@@ -17,4 +17,6 @@ export {
   Table,
   Pagination,
   Calendar,
+  Tag,
+  Checkbox,
 } from "../components/index";

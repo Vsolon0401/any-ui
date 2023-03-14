@@ -1,94 +1,27 @@
 import * as React from "react";
-import type {
-  PaginationProps as PaginationPropsType,
-  PaginationLocale,
-} from "rc-pagination";
-import RcPagination from "rc-pagination";
+import { PaginationProps } from "./interface";
 import classnames from "classnames";
 import "./style/index.scss";
-
-const DOST = "•••";
-
-export interface PaginationProps extends PaginationPropsType {
-  size?: "default" | "small";
-}
-
-export type PaginationPosition = "top" | "bottom";
+import InternalPagination from "./internal-pagination";
 
 export interface PaginationConfig extends PaginationProps {
-  position?: PaginationPosition;
+  size?: "default" | "small";
+  position?: "top" | "bottom";
 }
-
-export type { PaginationLocale };
-
-const defaultPaginationConfig: PaginationConfig = {
-  defaultCurrent: 1,
-  defaultPageSize: 10,
-  disabled: false,
-  size: "default",
-  position: "bottom",
-};
 
 const Pagination: React.FC<PaginationConfig> = ({
   prefixCls = "ai-pagination",
-  size,
-  position,
+  size = "default",
+  position = "bottom",
   ...restProps
-} = defaultPaginationConfig) => {
+}) => {
   const extendedClassName = classnames({
     [`ai-pagination-${size}`]: size,
     [`ai-pagination-${position}`]: position,
   });
 
-  const getIcon = () => {
-    const prevEllipsis = <span className={`${prefixCls}-icon`}>&#60;</span>;
-    const nextEllipsis = <span className={`${prefixCls}-icon`}>&#62;</span>;
-    const ellipsis = (
-      <span className={`${prefixCls}-item-ellipsis`}>{DOST}</span>
-    );
-    const prevIcon = (
-      <button
-        className={`${prefixCls}-item-link`}
-        type={"button"}
-        tabIndex={-1}
-      >
-        {prevEllipsis}
-      </button>
-    );
-
-    const nextIcon = (
-      <button
-        className={`${prefixCls}-item-link`}
-        type={"button"}
-        tabIndex={-1}
-      >
-        {nextEllipsis}
-      </button>
-    );
-
-    const jumpPrevIcon = (
-      <a className={`${prefixCls}-item-link`}>
-        <div className={`${prefixCls}-item-container`}>{ellipsis}</div>
-      </a>
-    );
-
-    const jumpNextIcon = (
-      <a className={`${prefixCls}-item-link`}>
-        <div className={`${prefixCls}-item-container`}>{ellipsis}</div>
-      </a>
-    );
-
-    return {
-      prevIcon,
-      nextIcon,
-      jumpPrevIcon,
-      jumpNextIcon,
-    };
-  };
-
   return (
-    <RcPagination
-      {...getIcon()}
+    <InternalPagination
       {...restProps}
       prefixCls={prefixCls}
       className={extendedClassName}

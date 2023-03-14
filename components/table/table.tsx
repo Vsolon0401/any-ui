@@ -113,47 +113,54 @@ const Table: React.FC<TableProps> = ({
         {showHeader && (
           <thead className={`${prefixCls}-table-thead`}>
             <tr className={`${prefixCls}-table-column`}>
-              {columnNames!.map((key: string) => {
-                if (showSorterTooltip) {
-                  const onAscData = () => {
-                    ascSort(key, dataSource);
-                    handleSorter();
-                  };
-                  const onDescData = () => {
-                    descSort(key, dataSource);
-                    handleSorter();
-                  };
+              {columnNames &&
+                columnNames.map((key: string) => {
+                  if (showSorterTooltip) {
+                    const onAscData = () => {
+                      ascSort(key, dataSource);
+                      handleSorter();
+                    };
+                    const onDescData = () => {
+                      descSort(key, dataSource);
+                      handleSorter();
+                    };
+                    return (
+                      <th
+                        className={`${prefixCls}-table-column-content`}
+                        key={key}
+                      >
+                        <div className={`${prefixCls}-table-column-sorters`}>
+                          <span className={`${prefixCls}-table-column-title`}>
+                            {key.replace(/_/g, " ").toUpperCase()}
+                          </span>
+                          <span className={`${prefixCls}-table-column-sorter`}>
+                            <span
+                              className={`${prefixCls}-table-column-sorter-inner`}
+                            >
+                              <span className={"caret-up"} onClick={onAscData}>
+                                ˄
+                              </span>
+                              <span
+                                className={"caret-down"}
+                                onClick={onDescData}
+                              >
+                                ˅
+                              </span>
+                            </span>
+                          </span>
+                        </div>
+                      </th>
+                    );
+                  }
                   return (
                     <th
                       className={`${prefixCls}-table-column-content`}
                       key={key}
                     >
-                      <div className={`${prefixCls}-table-column-sorters`}>
-                        <span className={`${prefixCls}-table-column-title`}>
-                          {key.replace(/_/g, " ").toUpperCase()}
-                        </span>
-                        <span className={`${prefixCls}-table-column-sorter`}>
-                          <span
-                            className={`${prefixCls}-table-column-sorter-inner`}
-                          >
-                            <span className={"caret-up"} onClick={onAscData}>
-                              ˄
-                            </span>
-                            <span className={"caret-down"} onClick={onDescData}>
-                              ˅
-                            </span>
-                          </span>
-                        </span>
-                      </div>
+                      {key.replace(/_/g, " ").toUpperCase()}
                     </th>
                   );
-                }
-                return (
-                  <th className={`${prefixCls}-table-column-content`} key={key}>
-                    {key.replace(/_/g, " ").toUpperCase()}
-                  </th>
-                );
-              })}
+                })}
             </tr>
           </thead>
         )}
