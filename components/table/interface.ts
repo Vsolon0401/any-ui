@@ -87,6 +87,15 @@ export type ColumnsType<RecordType = unknown> = readonly (
 export type GetRowKey<RecordType> = (record: RecordType, index?: number) => Key;
 
 // ================= Fix Column =================
+export interface FixedInfo {
+  fixLeft: number | false;
+  fixRight: number | false;
+  lastFixLeft: boolean;
+  firstFixRight: boolean;
+  lastFixRight: boolean;
+  firstFixLeft: boolean;
+  isSticky?: boolean;
+}
 export interface StickyOffsets {
   left: readonly number[];
   right: readonly number[];
@@ -139,6 +148,13 @@ export type GetComponent = (
   path: readonly string[],
   defaultComponent?: CustomizeComponent
 ) => CustomizeComponent;
+
+export interface GetColumnKeyColumn {
+  /** 属性key*/
+  key?: Key;
+  /** 引索*/
+  dataIndex?: DataIndex;
+}
 
 // =================== Expand ===================
 export type ExpandableType = false | "row" | "nest";
@@ -198,4 +214,43 @@ export interface TableSticky {
   offsetSummary?: number;
   offsetScroll?: number;
   getContainer?: () => Window | HTMLElement;
+}
+
+// =================== Table ===================
+export interface InternalTableProps<RecordType = unknown> {
+  prefixCls?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+  data?: readonly RecordType[];
+  columns?: ColumnsType<RecordType>[];
+  rowKey?: string | GetRowKey<RecordType>;
+  tableLayout?: TableLayout;
+
+  scroll?: { x?: number | string; y?: number | string };
+
+  expandable?: ExpandableConfig<RecordType>;
+  indentSize?: number;
+  rowClassName?: string | RowClassName<RecordType>;
+  footer?: PanelRender<RecordType>;
+  summary?: (data: readonly RecordType[]) => React.ReactNode;
+  caption?: string | React.ReactNode;
+
+  id?: string;
+  showHeader?: boolean;
+  components?: TableComponents<RecordType>;
+  onRow?: GetComponentProps<RecordType>;
+  onHeaderRow?: GetComponentProps<readonly ColumnType<RecordType>[]>;
+  emptyText?: React.ReactNode | (() => React.ReactNode);
+
+  direction?: Direction;
+
+  internalHooks?: string;
+  transformColumns?: (
+    columns: ColumnsType<RecordType>
+  ) => ColumnsType<RecordType>;
+  internalRefs?: {
+    body: React.MutableRefObject<HTMLDivElement>;
+  };
+  sticky?: boolean | TableSticky;
 }

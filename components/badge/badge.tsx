@@ -28,7 +28,7 @@ const BadgeComponent: React.FC<React.PropsWithChildren<BadgeProps>> = ({
 }: BadgeProps & typeof defaultProps) => {
   const classes = classNames(
     "ai-badge",
-    { 'ai-badge-dot':dot, [`ai-badge-${type}`]: type },
+    { "ai-badge-dot": dot, [`ai-badge-${type}`]: type },
     className
   );
   return (

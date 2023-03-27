@@ -67,7 +67,7 @@ const App = () => {
   const onCheckAllChange = (e) => {
     setCheckedList(e.target.checked ? plainOptions : []);
     setIndeterminate(false);
-    setCheckAll(!e.target.checked);
+    setCheckAll(e.target.checked);
   };
 
   return (

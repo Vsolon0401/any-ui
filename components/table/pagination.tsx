@@ -5,7 +5,7 @@ import {
   paginationProps,
   RIGHT_DOTS,
   usePagination,
-} from "./hook/usePagination";
+} from "./hooks/usePagination";
 import "./style/pagination.scss";
 
 const Pagination: React.FC<paginationProps> = ({

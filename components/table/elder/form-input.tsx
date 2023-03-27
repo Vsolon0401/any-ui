@@ -1,7 +1,7 @@
 import { InputHTMLAttributes } from "react";
 import * as React from "react";
 import classnames from "classnames";
-import "./style/form-input.scss";
+import "../style/form-input.scss";
 
 type FormInputProps = {
   label: string;

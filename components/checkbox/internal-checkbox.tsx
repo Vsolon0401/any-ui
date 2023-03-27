@@ -108,4 +108,4 @@ if (process.env.NODE_ENV !== "production") {
   InternalCheckbox.displayName = "InternalCheckbox";
 }
 
-export default InternalCheckbox;
+export default React.memo(InternalCheckbox);

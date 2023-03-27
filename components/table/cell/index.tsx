@@ -1,9 +1,5 @@
-import { useContext } from "react";
-import classNames from "classnames";
 import * as React from "react";
 import TableContext from "../context/TableContext";
-// @ts-ignore
-import devRenderTimes from "../../tableing/hooks/useRenderTimes";
 import type {
   AlignType,
   CellEllipsisType,
@@ -15,25 +11,35 @@ import type {
 } from "../interface";
 import { useCellRender } from "./useCellRender";
 import { useHoverState } from "./useHoverState";
+import classnames from "classnames";
+import { useContext } from "@rc-component/context";
 
 export interface CellProps<RecordType extends DefaultRecordType> {
+  /** 单元格前缀类名 */
   prefixCls?: string;
+  /** 单元格类名 */
   className?: string;
   record?: RecordType;
-  /** `column` index is the real show rowIndex */
+  /** 列索引是真实的显示行索引 */
   index?: number;
-  /** the index of the record. For the render(value, record, renderIndex) */
+  /** 记录的索引。对于渲染（值、记录、renderIndex */
   renderIndex?: number;
   dataIndex?: DataIndex;
+  /** 渲染函数*/
   render?: ColumnType<RecordType>["render"];
-  component?: CustomizeComponent;
+  component: CustomizeComponent;
+  /** 单元格子节点 */
   children?: React.ReactNode;
+  /** 单元格中扩展列的数量 值<1000 */
   colSpan?: number;
+  /** 单元格中扩展行的数量 值<1000 */
   rowSpan?: number;
+  /** 作为表头时关联的单元格 */
   scope?: ScopeType;
   ellipsis?: CellEllipsisType;
+  /** 单元格内元素排列方式*/
   align?: AlignType;
-
+  /** 单元格更新依据*/
   shouldCellUpdate?: (record: RecordType, prevRecord: RecordType) => boolean;
 
   // Fixed
@@ -61,9 +67,8 @@ const getTitleFromCellRenderChildren = ({
   children,
 }: Pick<CellProps<any>, "ellipsis" | "rowType" | "children">) => {
   let title: string = "";
-  // @ts-ignore
   const ellipsisConfig: CellEllipsisType =
-    ellipsis === true ? { showTitle: true } : ellipsis;
+    ellipsis === true ? { showTitle: true } : (ellipsis as CellEllipsisType);
   if (
     ellipsisConfig &&
     ((typeof ellipsisConfig !== "boolean" && ellipsisConfig?.showTitle) ||
@@ -81,60 +86,47 @@ const getTitleFromCellRenderChildren = ({
   return title;
 };
 
-function Cell<RecordType extends DefaultRecordType>(
-  props: CellProps<RecordType>
-) {
-  if (process.env.NODE_ENV !== "production") {
-    devRenderTimes(props);
-  }
+const Cell: React.FC<CellProps<any>> = <RecordType extends DefaultRecordType>({
+  component: Component,
+  children,
+  ellipsis,
+  scope,
 
-  const {
-    component: Component,
-    children,
-    ellipsis,
-    scope,
+  // Style
+  prefixCls,
+  className,
+  align,
 
-    // Style
-    prefixCls,
-    className,
-    align,
+  // Value
+  record,
+  render,
+  dataIndex,
+  renderIndex,
+  shouldCellUpdate,
 
-    // Value
-    record,
-    render,
-    dataIndex,
-    renderIndex,
-    shouldCellUpdate,
+  // Row
+  index,
+  rowType,
 
-    // Row
-    index = 0,
-    rowType,
+  // Span
+  colSpan,
+  rowSpan,
 
-    // Span
-    colSpan,
-    rowSpan,
+  // Fixed
+  fixLeft,
+  fixRight,
+  firstFixLeft,
+  lastFixLeft,
+  firstFixRight,
+  lastFixRight,
 
-    // Fixed
-    fixLeft,
-    fixRight,
-    firstFixLeft,
-    lastFixLeft,
-    firstFixRight,
-    lastFixRight,
-
-    // Private
-    appendNode,
-    additionalProps = {},
-    isSticky,
-  } = props;
-
-  const cellPrefixCls = `${prefixCls}-cell`;
-  const { supportSticky, allColumnsFixedLeft } = useContext(TableContext);
-
-  // ====================== Value =======================
-
-  const [childNode, legacyCellProps] = useCellRender(
-    // @ts-ignore
+  // Private
+  appendNode,
+  additionalProps = {},
+  isSticky,
+}: CellProps<RecordType>) => {
+  // 单元格数据渲染
+  const [childNode, cellProps] = useCellRender(
     record,
     dataIndex,
     renderIndex,
@@ -143,35 +135,39 @@ function Cell<RecordType extends DefaultRecordType>(
     shouldCellUpdate
   );
 
-  // ====================== Fixed =======================
+  // row | col 扩展处理 默认值: 1
+  const mergeRowSpan =
+    cellProps?.rowSpan ?? additionalProps?.rowSpan ?? rowSpan ?? 1;
+  const mergeColSpan =
+    cellProps?.colSpan ?? additionalProps?.colSpan ?? colSpan ?? 1;
+
+  // Fixed
+  // 从上下文中取出对Sticky的支持性
+  const { supportSticky, allColumnsFixedLeft } = useContext(TableContext, [
+    "supportSticky",
+    "allColumnsFixedLeft",
+  ]);
   const fixedStyle: React.CSSProperties = {};
   const isFixLeft = typeof fixLeft === "number" && supportSticky;
   const isFixRight = typeof fixRight === "number" && supportSticky;
 
   if (isFixLeft) {
     fixedStyle.position = "sticky";
-    fixedStyle.left = fixLeft as number;
+    fixedStyle.left = fixLeft;
   }
   if (isFixRight) {
     fixedStyle.position = "sticky";
-
-    fixedStyle.right = fixRight as number;
+    fixedStyle.right = fixRight;
   }
 
-  // ================ RowSpan & ColSpan =================
-  const mergedColSpan =
-    legacyCellProps?.colSpan ?? additionalProps.colSpan ?? colSpan ?? 1;
-  const mergedRowSpan =
-    legacyCellProps?.rowSpan ?? additionalProps.rowSpan ?? rowSpan ?? 1;
-
-  // ====================== Hover =======================
-  const [hovering, onHover] = useHoverState(index, mergedRowSpan);
+  // hover | click
+  const [hovering, onHover] = useHoverState(index, mergeRowSpan);
 
   const onMouseEnter: React.MouseEventHandler<HTMLTableCellElement> = (
     event
   ) => {
     if (record) {
-      onHover(index, index + mergedRowSpan - 1);
+      onHover(index, index + mergeRowSpan - 1);
     }
 
     additionalProps?.onMouseEnter?.(event);
@@ -187,95 +183,66 @@ function Cell<RecordType extends DefaultRecordType>(
     additionalProps?.onMouseLeave?.(event);
   };
 
-  // ====================== Render ======================
-  if (mergedColSpan === 0 || mergedRowSpan === 0) {
-    return null;
-  }
+  // className 处理动态样式
+  const cellPrefixCls = `${prefixCls}-cell`;
+  const mergeCls = classnames(prefixCls, {
+    // fixed
+    [`${cellPrefixCls}-fix-left`]: isFixLeft && supportSticky,
+    [`${cellPrefixCls}-fix-left-first`]: firstFixLeft && supportSticky,
+    [`${cellPrefixCls}-fix-left-last`]: lastFixLeft && supportSticky,
+    [`${cellPrefixCls}-fix-left-all`]:
+      lastFixLeft && allColumnsFixedLeft && supportSticky,
+    [`${cellPrefixCls}-fix-right`]: isFixRight && supportSticky,
+    [`${cellPrefixCls}-fix-right-first`]: firstFixRight && supportSticky,
+    [`${cellPrefixCls}-fix-right-last`]: lastFixRight && supportSticky,
+    [`${cellPrefixCls}-fix-sticky`]:
+      (isFixLeft || isFixRight) && isSticky && supportSticky,
+    [`${cellPrefixCls}-ellipsis`]: ellipsis,
+    [`${cellPrefixCls}-with-append`]: appendNode,
+    [`${cellPrefixCls}-row-hover`]: hovering && !cellProps,
+  });
 
-  // >>>>> Title
-  const title =
-    additionalProps.title ??
-    getTitleFromCellRenderChildren({
-      rowType,
-      ellipsis,
-      children: childNode,
-    });
-
-  // >>>>> ClassName
-  const mergedClassName = classNames(
-    cellPrefixCls,
-    className,
-    {
-      [`${cellPrefixCls}-fix-left`]: isFixLeft && supportSticky,
-      [`${cellPrefixCls}-fix-left-first`]: firstFixLeft && supportSticky,
-      [`${cellPrefixCls}-fix-left-last`]: lastFixLeft && supportSticky,
-      [`${cellPrefixCls}-fix-left-all`]:
-        lastFixLeft && allColumnsFixedLeft && supportSticky,
-      [`${cellPrefixCls}-fix-right`]: isFixRight && supportSticky,
-      [`${cellPrefixCls}-fix-right-first`]: firstFixRight && supportSticky,
-      [`${cellPrefixCls}-fix-right-last`]: lastFixRight && supportSticky,
-      [`${cellPrefixCls}-ellipsis`]: ellipsis,
-      [`${cellPrefixCls}-with-append`]: appendNode,
-      [`${cellPrefixCls}-fix-sticky`]:
-        (isFixLeft || isFixRight) && isSticky && supportSticky,
-      [`${cellPrefixCls}-row-hover`]: !legacyCellProps && hovering,
-    },
-    additionalProps.className,
-    legacyCellProps?.className
-  );
-
-  // >>>>> Style
+  // style
   const alignStyle: React.CSSProperties = {};
   if (align) {
     alignStyle.textAlign = align;
   }
 
-  const mergedStyle = {
+  const mergeStyle = {
     ...additionalProps.style,
     ...alignStyle,
     ...fixedStyle,
-    ...legacyCellProps?.style,
+    ...cellProps?.style,
   };
 
-  // >>>>> Children Node
-  let mergedChildNode = childNode;
+  // title
+  const title =
+    additionalProps.title ??
+    getTitleFromCellRenderChildren({
+      rowType,
+      ellipsis,
+      children: childNode as React.ReactNode,
+    });
 
-  // Not crash if final `childNode` is not validate ReactNode
-  if (
-    typeof mergedChildNode === "object" &&
-    !Array.isArray(mergedChildNode) &&
-    !React.isValidElement(mergedChildNode)
-  ) {
-    mergedChildNode = null;
-  }
-
-  if (ellipsis && (lastFixLeft || firstFixRight)) {
-    mergedChildNode = (
-      <span className={`${cellPrefixCls}-content`}>{mergedChildNode}</span>
-    );
-  }
+  // row或col值为0时，不作渲染
+  if (mergeRowSpan === 0 || mergeColSpan === 0) return null;
 
   return (
-    // @ts-ignore
     <Component
-      {...legacyCellProps}
+      {...cellProps}
       {...additionalProps}
-      className={mergedClassName}
-      style={mergedStyle}
-      // A11y
-      title={title}
+      className={mergeCls}
       scope={scope}
-      // Hover
+      title={title}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      //Span
-      colSpan={mergedColSpan !== 1 ? mergedColSpan : null}
-      rowSpan={mergedRowSpan !== 1 ? mergedRowSpan : null}
+      colSpan={mergeColSpan !== 1 ? mergeColSpan : null}
+      rowSpan={mergeRowSpan !== 1 ? mergeRowSpan : null}
     >
+      {childNode}
       {appendNode}
-      {mergedChildNode}
     </Component>
   );
-}
+};
 
 export default React.memo(Cell);

@@ -1,9 +1,9 @@
 import * as React from "react";
-import Pagination from "./pagination";
+import Pagination from "../pagination";
 import { useEffect, useMemo, useState, ChangeEvent, FormEvent } from "react";
-import { ascSort, descSort, tableFilter } from "./utils";
+import { ascSort, descSort, tableFilter } from "../utils";
 import FormInput from "./form-input";
-import "./style/index.scss";
+import "../style/index.scss";
 
 export interface TableProps {
   dataSource: object[];

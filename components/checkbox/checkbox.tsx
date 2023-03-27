@@ -5,7 +5,6 @@ import classnames from "classnames";
 import * as React from "react";
 import InternalCheckbox from "./internal-checkbox";
 import { GroupContext } from "./group";
-import * as process from "process";
 
 const BaseCheckbox: React.ForwardRefRenderFunction<
   HTMLInputElement,

@@ -25,5 +25,7 @@ export default defineConfig({
     { id: "zh-CN", name: "中文" },
     { id: "en-US", name: "English" },
   ],
-  favicons: ["https://github.com/5unnyWind/any-ui/blob/main/public/logo2.png?raw=true"],
+  favicons: [
+    "https://github.com/5unnyWind/any-ui/blob/main/public/logo2.png?raw=true",
+  ],
 });

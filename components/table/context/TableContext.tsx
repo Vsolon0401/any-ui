@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createContext } from "react";
+import { createContext } from "@rc-component/context";
 import type {
   ColumnsType,
   ColumnType,
@@ -55,6 +55,6 @@ export interface TableContextProps<RecordType = any> {
   onHover: (start: number, end: number) => void;
 }
 
-const TableContext = createContext<TableContextProps>({} as TableContextProps);
+const TableContext = createContext<TableContextProps>();
 
 export default TableContext;

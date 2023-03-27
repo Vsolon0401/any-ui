@@ -1,4 +1,4 @@
-import Table from "./table";
-export type { TableProps } from "./table";
+import Table from "./elder/table";
+export type { TableProps } from "./elder/table";
 
 export default Table;
